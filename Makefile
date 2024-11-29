@@ -1,19 +1,24 @@
-TOOLCHAIN_PATH=./toolchain
-CC=$(TOOLCHAIN_PATH)/bin/arm-none-eabi-gcc
-LD=$(TOOLCHAIN_PATH)/bin/arm-none-eabi-ld
+TOOLCHAIN_PREFIX=./toolchain/bin/arm-none-eabi-
+CC=$(TOOLCHAIN_PREFIX)gcc
+LD=$(TOOLCHAIN_PREFIX)ld
+OBJCPOPY=$(TOOLCHAIN_PREFIX)objcopy
+
 MACH=cortex-m4
-CFLAGS= -c -mcpu=$(MACH) -mthumb -mfloat-abi=soft -std=gnu11 -o0 -Wall
-LDFLAGS= -mcpu=$(MACH) -mthumb -mfloat-abi=soft --specs=nano.specs -T linker_stm32f407xx.ld -Wl,-Map=memory.map
+CFLAGS= -c -g -mcpu=$(MACH) -std=gnu11 -o0 -Wall
+LDFLAGS= -mcpu=$(MACH) -T linker_stm32f407xx.ld -Wl,-Map=memory.map
 
 OBJS+= 	./main.o \
-		./startup_stm32f407xx.o
-SYSCALLS_OBJ=syscalls.o
+		./startup_stm32f407xx.o \
+		./syscalls.o
 
-all: final.elf
-	@echo "BUild final executable file done."
+all: boot.elf boot.bin
+	@echo "Built final executable file done."
 
-final.elf: $(OBJS) $(SYSCALLS_OBJ)
+boot.elf: $(OBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
+
+boot.bin: boot.elf
+	$(OBJCPOPY) -O binary boot.elf boot.bin
 
 %.o: %.c
 	$(CC) $(CFLAGS) $^ -o $@
