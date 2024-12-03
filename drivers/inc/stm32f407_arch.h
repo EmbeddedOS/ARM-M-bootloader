@@ -9,6 +9,8 @@ typedef unsigned char uint8_t;
 #define __reg_t volatile uint32_t
 #define __reg (volatile uint32_t *)
 
+typedef uint32_t __reserved_reg_t;
+
 /* Memories's base addresses -------------------------------------------------*/
 #define MEM_FLASH_BASEADDR 0x08000000U
 #define MEM_SRAM1_BASEADDR 0x20000000U
@@ -31,6 +33,8 @@ typedef unsigned char uint8_t;
 #define PER_GPIOG_BASEADDR (BUS_AHB1_BASEADDR + 0x1800)
 #define PER_GPIOH_BASEADDR (BUS_AHB1_BASEADDR + 0x1C00)
 #define PER_GPIOI_BASEADDR (BUS_AHB1_BASEADDR + 0x2000)
+
+#define RCC_BASEADDR 0x40023800U
 
 /* APB1 Bus peripherals's base addresses -------------------------------------*/
 #define PER_USART2_BASEADDR (BUS_APB1_BASEADDR + 0x4400)
@@ -85,3 +89,37 @@ typedef struct __pack
     __reg_t cr3;  /* Control register 3.                */
     __reg_t gtpr; /* Guard time and prescaler register. */
 } usart_reg_t;
+
+typedef struct __pack
+{
+    __reg_t cr;                    /* RCC clock control register. */
+    __reg_t pllcfgr;               /* RCC PLL configuration register. */
+    __reg_t cfgr;                  /* RCC clock configuration register. */
+    __reg_t cir;                   /* RCC clock interrupt register. */
+    __reg_t ahb1rstr;              /* RCC AHB1 peripheral reset register. */
+    __reg_t ahb2rstr;              /* RCC AHB2 peripheral reset register. */
+    __reg_t ahb3rstr;              /* RCC AHB3 peripheral reset register. */
+    __reserved_reg_t reserved0;    /* Reserved. */
+    __reg_t apb1rstr;              /* RCC APB1 peripheral reset register. */
+    __reg_t apb2rstr;              /* RCC APB2 peripheral reset register. */
+    __reserved_reg_t reserved1[2]; /* Reserved. */
+    __reg_t ahb1enr;               /* RCC AHB1 peripheral clock enable register. */
+    __reg_t ahb2enr;               /* RCC AHB2 peripheral clock enable register. */
+    __reg_t ahb3enr;               /* RCC AHB3 peripheral clock enable register. */
+    __reserved_reg_t reserved2;    /* Reserved. */
+    __reg_t apb1enr;               /* RCC APB1 peripheral clock enable register. */
+    __reg_t apb2enr;               /* RCC APB2 peripheral clock enable register. */
+    __reserved_reg_t reserved3[2]; /* Reserved. */
+    __reg_t ahb1lpenr;             /* RCC AHB1 peripheral clock enable in low power mode register. */
+    __reg_t ahb2lpenr;             /* RCC AHB2 peripheral clock enable in low power mode register. */
+    __reg_t ahb3lpenr;             /* RCC AHB3 peripheral clock enable in low power mode register. */
+    __reserved_reg_t reserved4;    /* Reserved. */
+    __reg_t apb1lpenr;             /* RCC APB1 peripheral clock enable in low power mode register. */
+    __reg_t apb2lpenr;             /* RCC APB2 peripheral clock enable in low power mode register. */
+    __reserved_reg_t reserved5[2]; /* Reserved. */
+    __reg_t bdcr;                  /* RCC Backup domain control register. */
+    __reg_t csr;                   /* RCC clock control & status register. */
+    __reserved_reg_t reserved6[2]; /* Reserved. */
+    __reg_t sscgr;                 /* RCC spread spectrum clock generation register. */
+    __reg_t plli2scfgr;            /* RCC PLLI2S configuration register. */
+} rcc_reg_t;
