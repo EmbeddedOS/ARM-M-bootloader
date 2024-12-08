@@ -28,10 +28,10 @@ int gpio_read_pin(gpio_reg_t *reg, uint8_t pin, uint8_t *val)
 
 int gpio_write_pin(gpio_reg_t *reg, uint8_t pin, uint8_t val)
 {
-
+    return 0;
 }
 
 int gpio_config_deinit(gpio_reg_t *reg, uint8_t pin)
 {
-
+    return 0;
 }

@@ -2,7 +2,7 @@
  * @brief   - General architecture code for STM32F407xx SoC.
  */
 #pragma once
-#include "stm32407xx_types.h"
+#include <stm32f407xx_types.h>
 
 /* Public defines ------------------------------------------------------------*/
 #define __pack __attribute__((packed, aligned(1)))
