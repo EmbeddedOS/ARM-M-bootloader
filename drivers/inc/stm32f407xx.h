@@ -1,7 +1,6 @@
 #pragma once
 
 #define __pack __attribute__((packed, aligned(1)))
-
 /* Public types --------------------------------------------------------------*/
 typedef unsigned int uint32_t;
 typedef unsigned char uint8_t;
@@ -23,103 +22,139 @@ typedef uint32_t __reserved_reg_t;
 #define BUS_AHB1_BASEADDR 0x40020000U
 #define BUS_AHB2_BASEADDR 0x50000000U
 
-/* AHB1 Bus peripherals's base addresses -------------------------------------*/
-#define PER_GPIOA_BASEADDR (BUS_AHB1_BASEADDR + 0x0000)
-#define PER_GPIOB_BASEADDR (BUS_AHB1_BASEADDR + 0x0400)
-#define PER_GPIOC_BASEADDR (BUS_AHB1_BASEADDR + 0x0800)
-#define PER_GPIOD_BASEADDR (BUS_AHB1_BASEADDR + 0x0C00)
-#define PER_GPIOE_BASEADDR (BUS_AHB1_BASEADDR + 0x1000)
-#define PER_GPIOF_BASEADDR (BUS_AHB1_BASEADDR + 0x1400)
-#define PER_GPIOG_BASEADDR (BUS_AHB1_BASEADDR + 0x1800)
-#define PER_GPIOH_BASEADDR (BUS_AHB1_BASEADDR + 0x1C00)
-#define PER_GPIOI_BASEADDR (BUS_AHB1_BASEADDR + 0x2000)
-
-#define RCC_BASEADDR 0x40023800U
-
-/* APB1 Bus peripherals's base addresses -------------------------------------*/
-#define PER_USART2_BASEADDR (BUS_APB1_BASEADDR + 0x4400)
-#define PER_USART3_BASEADDR (BUS_APB1_BASEADDR + 0x4800)
-#define PER_UART4_BASEADDR (BUS_APB1_BASEADDR + 0x4C00)
-#define PER_UART5_BASEADDR (BUS_APB1_BASEADDR + 0x5000)
-
-/* APB2 Bus peripherals's base addresses -------------------------------------*/
-#define PER_USART1_BASEADDR (BUS_APB2_BASEADDR + 0x1000)
-#define PER_USART6_BASEADDR (BUS_APB2_BASEADDR + 0x1400)
-
-/* Peripheral register accessors ---------------------------------------------*/
-#define REG_GPIOA ((gpio_reg_t *)PER_GPIOA_BASEADDR)
-#define REG_GPIOB ((gpio_reg_t *)PER_GPIOB_BASEADDR)
-#define REG_GPIOC ((gpio_reg_t *)PER_GPIOC_BASEADDR)
-#define REG_GPIOD ((gpio_reg_t *)PER_GPIOD_BASEADDR)
-#define REG_GPIOE ((gpio_reg_t *)PER_GPIOE_BASEADDR)
-#define REG_GPIOF ((gpio_reg_t *)PER_GPIOF_BASEADDR)
-#define REG_GPIOG ((gpio_reg_t *)PER_GPIOG_BASEADDR)
-#define REG_GPIOH ((gpio_reg_t *)PER_GPIOH_BASEADDR)
-#define REG_GPIOI ((gpio_reg_t *)PER_GPIOI_BASEADDR)
-
-#define REG_USART1 ((usart_reg_t *)PER_USART1_BASEADDR)
-#define REG_USART2 ((usart_reg_t *)PER_USART2_BASEADDR)
-#define REG_USART3 ((usart_reg_t *)PER_USART3_BASEADDR)
-#define REG_UART4 ((usart_reg_t *)PER_UART4_BASEADDR)
-#define REG_UART5 ((usart_reg_t *)PER_UART5_BASEADDR)
-#define REG_USART6 ((usart_reg_t *)PER_USART6_BASEADDR)
+/* Peripherals table ---------------------------------------------------------*/
+/**
+ * @brief   - SoC Peripheral Table, where columns are:
+ *            name - bus - offset - register struct - enable clock bit
+ * @note    - RCC (Reset and Clock Control) is special components. Although it
+ *            lies on AHB1 bus, we cannot add it to the table because, it does
+ *            need enable clock itself to be active. So we declare separate
+ *            help functions for it.
+ */
+#define PERIPHERAL_TABLE                                     \
+    __PERIPHERAL_INDEX(GPIOA, AHB1, 0x0000, gpio_reg_t, 0)   \
+    __PERIPHERAL_INDEX(GPIOB, AHB1, 0x0400, gpio_reg_t, 1)   \
+    __PERIPHERAL_INDEX(GPIOC, AHB1, 0x0800, gpio_reg_t, 2)   \
+    __PERIPHERAL_INDEX(GPIOD, AHB1, 0x0C00, gpio_reg_t, 3)   \
+    __PERIPHERAL_INDEX(GPIOE, AHB1, 0x1000, gpio_reg_t, 4)   \
+    __PERIPHERAL_INDEX(GPIOF, AHB1, 0x1400, gpio_reg_t, 5)   \
+    __PERIPHERAL_INDEX(GPIOG, AHB1, 0x1800, gpio_reg_t, 6)   \
+    __PERIPHERAL_INDEX(GPIOH, AHB1, 0x1C00, gpio_reg_t, 7)   \
+    __PERIPHERAL_INDEX(GPIOI, AHB1, 0x2000, gpio_reg_t, 8)   \
+    __PERIPHERAL_INDEX(USART1, APB2, 0x1000, usart_reg_t, 0) \
+    __PERIPHERAL_INDEX(USART2, APB1, 0x4400, usart_reg_t, 0) \
+    __PERIPHERAL_INDEX(USART3, APB1, 0x4800, usart_reg_t, 0) \
+    __PERIPHERAL_INDEX(UART4, APB1, 0x4C00, usart_reg_t, 0)  \
+    __PERIPHERAL_INDEX(UART5, APB1, 0x5000, usart_reg_t, 0)  \
+    __PERIPHERAL_INDEX(USART6, APB2, 0x1400, usart_reg_t, 0)
 
 /* Peripheral registers's structures -----------------------------------------*/
 typedef struct __pack
 {
-    __reg_t moder;   /* GPIO port mode register.                 */
-    __reg_t otyper;  /* GPIO port output type register.          */
-    __reg_t ospeedr; /* GPIO port output speed register.         */
-    __reg_t pupdr;   /* GPIO port pull-up/pull-down register.    */
-    __reg_t idr;     /* GPIO port input data register.           */
-    __reg_t odr;     /* GPIO port output data register.          */
-    __reg_t bsrr;    /* GPIO port bit set/reset register.        */
-    __reg_t lckr;    /* GPIO port configuration lock register.   */
-    __reg_t afrl;    /* GPIO alternate function low register.    */
-    __reg_t afrh;    /* GPIO alternate function high register.   */
+    __reg_t MODER;   /* GPIO port mode register.                 */
+    __reg_t OTYPER;  /* GPIO port output type register.          */
+    __reg_t OSPEEDR; /* GPIO port output speed register.         */
+    __reg_t PUPDR;   /* GPIO port pull-up/pull-down register.    */
+    __reg_t IDR;     /* GPIO port input data register.           */
+    __reg_t ODR;     /* GPIO port output data register.          */
+    __reg_t BSRR;    /* GPIO port bit set/reset register.        */
+    __reg_t LCKR;    /* GPIO port configuration lock register.   */
+    __reg_t AFRL;    /* GPIO alternate function low register.    */
+    __reg_t AFRH;    /* GPIO alternate function high register.   */
 } gpio_reg_t;
 
 typedef struct __pack
 {
-    __reg_t sr;   /* Status register.                   */
-    __reg_t dr;   /* Data register.                     */
-    __reg_t brr;  /* Baud rate register.                */
-    __reg_t cr1;  /* Control register 1.                */
-    __reg_t cr2;  /* Control register 2.                */
-    __reg_t cr3;  /* Control register 3.                */
-    __reg_t gtpr; /* Guard time and prescaler register. */
+    __reg_t SR;   /* Status register.                   */
+    __reg_t DR;   /* Data register.                     */
+    __reg_t BRR;  /* Baud rate register.                */
+    __reg_t CR1;  /* Control register 1.                */
+    __reg_t CR2;  /* Control register 2.                */
+    __reg_t CR3;  /* Control register 3.                */
+    __reg_t GTPR; /* Guard time and prescaler register. */
 } usart_reg_t;
 
 typedef struct __pack
 {
-    __reg_t cr;                    /* RCC clock control register. */
-    __reg_t pllcfgr;               /* RCC PLL configuration register. */
-    __reg_t cfgr;                  /* RCC clock configuration register. */
-    __reg_t cir;                   /* RCC clock interrupt register. */
-    __reg_t ahb1rstr;              /* RCC AHB1 peripheral reset register. */
-    __reg_t ahb2rstr;              /* RCC AHB2 peripheral reset register. */
-    __reg_t ahb3rstr;              /* RCC AHB3 peripheral reset register. */
-    __reserved_reg_t reserved0;    /* Reserved. */
-    __reg_t apb1rstr;              /* RCC APB1 peripheral reset register. */
-    __reg_t apb2rstr;              /* RCC APB2 peripheral reset register. */
-    __reserved_reg_t reserved1[2]; /* Reserved. */
-    __reg_t ahb1enr;               /* RCC AHB1 peripheral clock enable register. */
-    __reg_t ahb2enr;               /* RCC AHB2 peripheral clock enable register. */
-    __reg_t ahb3enr;               /* RCC AHB3 peripheral clock enable register. */
-    __reserved_reg_t reserved2;    /* Reserved. */
-    __reg_t apb1enr;               /* RCC APB1 peripheral clock enable register. */
-    __reg_t apb2enr;               /* RCC APB2 peripheral clock enable register. */
-    __reserved_reg_t reserved3[2]; /* Reserved. */
-    __reg_t ahb1lpenr;             /* RCC AHB1 peripheral clock enable in low power mode register. */
-    __reg_t ahb2lpenr;             /* RCC AHB2 peripheral clock enable in low power mode register. */
-    __reg_t ahb3lpenr;             /* RCC AHB3 peripheral clock enable in low power mode register. */
-    __reserved_reg_t reserved4;    /* Reserved. */
-    __reg_t apb1lpenr;             /* RCC APB1 peripheral clock enable in low power mode register. */
-    __reg_t apb2lpenr;             /* RCC APB2 peripheral clock enable in low power mode register. */
-    __reserved_reg_t reserved5[2]; /* Reserved. */
-    __reg_t bdcr;                  /* RCC Backup domain control register. */
-    __reg_t csr;                   /* RCC clock control & status register. */
-    __reserved_reg_t reserved6[2]; /* Reserved. */
-    __reg_t sscgr;                 /* RCC spread spectrum clock generation register. */
-    __reg_t plli2scfgr;            /* RCC PLLI2S configuration register. */
+    __reg_t CR;                    /* RCC clock control register. */
+    __reg_t PLLCFGR;               /* RCC PLL configuration register. */
+    __reg_t CFGR;                  /* RCC clock configuration register. */
+    __reg_t CIR;                   /* RCC clock interrupt register. */
+    __reg_t AHB1RSTR;              /* RCC AHB1 peripheral reset register. */
+    __reg_t AHB2RSTR;              /* RCC AHB2 peripheral reset register. */
+    __reg_t AHB3RSTR;              /* RCC AHB3 peripheral reset register. */
+    __reserved_reg_t RESERVED0;    /* Reserved. */
+    __reg_t APB1RSTR;              /* RCC APB1 peripheral reset register. */
+    __reg_t APB2RSTR;              /* RCC APB2 peripheral reset register. */
+    __reserved_reg_t RESERVED1[2]; /* Reserved. */
+    __reg_t AHB1ENR;               /* RCC AHB1 peripheral clock enable register. */
+    __reg_t AHB2ENR;               /* RCC AHB2 peripheral clock enable register. */
+    __reg_t AHB3ENR;               /* RCC AHB3 peripheral clock enable register. */
+    __reserved_reg_t RESERVED2;    /* Reserved. */
+    __reg_t APB1ENR;               /* RCC APB1 peripheral clock enable register. */
+    __reg_t APB2ENR;               /* RCC APB2 peripheral clock enable register. */
+    __reserved_reg_t RESERVED3[2]; /* Reserved. */
+    __reg_t AHB1LPENR;             /* RCC AHB1 peripheral clock enable in low power mode register. */
+    __reg_t AHB2LPENR;             /* RCC AHB2 peripheral clock enable in low power mode register. */
+    __reg_t AHB3LPENR;             /* RCC AHB3 peripheral clock enable in low power mode register. */
+    __reserved_reg_t RESERVED4;    /* Reserved. */
+    __reg_t APB1LPENR;             /* RCC APB1 peripheral clock enable in low power mode register. */
+    __reg_t APB2LPENR;             /* RCC APB2 peripheral clock enable in low power mode register. */
+    __reserved_reg_t RESERVED5[2]; /* Reserved. */
+    __reg_t BDCR;                  /* RCC Backup domain control register. */
+    __reg_t CSR;                   /* RCC clock control & status register. */
+    __reserved_reg_t RESERVED6[2]; /* Reserved. */
+    __reg_t SSCGR;                 /* RCC spread spectrum clock generation register. */
+    __reg_t PLLI2SCFGR;            /* RCC PLLI2S configuration register. */
 } rcc_reg_t;
+
+/* Peripheral helper functions -----------------------------------------------*/
+/**
+ * @brief   - Generate functions to get peripheral's base address. The function
+ *            name format will be uint32_t *get_##name##_baseaddr().
+ */
+#ifdef PERIPHERAL_TABLE
+#define __PERIPHERAL_INDEX(name, bus, offset, per_reg_t, rcc_en_clk) \
+    static inline uint32_t *get_##name##_baseaddr()                  \
+    {                                                                \
+        return (uint32_t *)(BUS_##bus##_BASEADDR + offset);          \
+    };
+PERIPHERAL_TABLE
+#undef __PERIPHERAL_INDEX
+#endif
+
+static inline uint32_t *get_RCC_baseaddr()
+{
+    return (uint32_t *)(BUS_AHB1_BASEADDR + 0x3800);
+};
+
+/**
+ * @brief   - Generate functions to get peripheral's register base structure.
+ */
+#ifdef PERIPHERAL_TABLE
+#define __PERIPHERAL_INDEX(name, bus, offset, per_reg_t, rcc_en_clk) \
+    static inline per_reg_t *get_##name##_reg()                      \
+    {                                                                \
+        return (per_reg_t *)get_##name##_baseaddr();                 \
+    }
+PERIPHERAL_TABLE
+#undef __PERIPHERAL_INDEX
+#endif
+
+static inline rcc_reg_t *get_RCC_reg()
+{
+    return (rcc_reg_t *)get_RCC_baseaddr();
+}
+
+/**
+ * @brief   - Generate functions to enable peripheral's clock.
+ */
+#ifdef PERIPHERAL_TABLE
+#define __PERIPHERAL_INDEX(name, bus, offset, per_reg_t, rcc_en_clk) \
+    static inline void enable_##name##_clk()                         \
+    {                                                                \
+        get_RCC_reg()->bus##ENR |= (1 << rcc_en_clk);                \
+    }
+PERIPHERAL_TABLE
+#undef __PERIPHERAL_INDEX
+#endif
