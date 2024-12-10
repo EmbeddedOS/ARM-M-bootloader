@@ -1,6 +1,11 @@
+/**
+ * @brief   - General architecture code for STM32F407xx SoC.
+ */
 #pragma once
 
+/* Public defines ------------------------------------------------------------*/
 #define __pack __attribute__((packed, aligned(1)))
+
 /* Public types --------------------------------------------------------------*/
 typedef unsigned int uint32_t;
 typedef unsigned char uint8_t;
@@ -49,6 +54,14 @@ typedef uint32_t __reserved_reg_t;
     __PERIPHERAL_INDEX(USART6, APB2, 0x1400, usart_reg_t, 0)
 
 /* Peripheral registers's structures -----------------------------------------*/
+/**
+ * @brief   - Each GPIO port has four 32-bit configuration registers
+ *            (GPIOx_MODER, GPIOx_OTYPER, GPIOx_OSPEEDR and GPIOx_PUPDR), two
+ *            32-bit data registers (GPIOx_IDR, GPIOx_ODR), a 32 bit set/reset
+ *            register (GPIOx_BSRR), a 32-bit locking register (GPIOx_LCKR) and
+ *            two 32-bit alternate function selection register (GPIOx_AFRH and
+ *            GPIOx_AFRL).
+ */ 
 typedef struct __pack
 {
     __reg_t MODER;   /* GPIO port mode register.                 */
