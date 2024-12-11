@@ -17,7 +17,7 @@
     reg = (val) ? (reg | (1 << pos) : (reg & !(1 << pos))); \
 })
 
-#define register_set_bit_range(reg, start, val, len) ({ \
+#define change_bits_range(reg, start, val, len) ({      \
     for (uint8_t i = 0; i < len; i++)                   \
     {                                                   \
         change_bit(reg, start + i, 1, get_bit(val, i)); \
@@ -41,28 +41,26 @@
 /* Peripherals table ---------------------------------------------------------*/
 /**
  * @brief   - SoC Peripheral Table, where columns are:
- *            name - bus - offset - register struct - enable clock bit
- * @note    - RCC (Reset and Clock Control) is special components. Although it
- *            lies on AHB1 bus, we cannot add it to the table because, it does
- *            need enable clock itself to be active. So we declare separate
- *            help functions for it.
+ *            name - bus - offset - register struct - RCC control bit map.
  */
-#define PERIPHERAL_TABLE                                     \
-    __PERIPHERAL_INDEX(GPIOA, AHB1, 0x0000, gpio_reg_t, 0)   \
-    __PERIPHERAL_INDEX(GPIOB, AHB1, 0x0400, gpio_reg_t, 1)   \
-    __PERIPHERAL_INDEX(GPIOC, AHB1, 0x0800, gpio_reg_t, 2)   \
-    __PERIPHERAL_INDEX(GPIOD, AHB1, 0x0C00, gpio_reg_t, 3)   \
-    __PERIPHERAL_INDEX(GPIOE, AHB1, 0x1000, gpio_reg_t, 4)   \
-    __PERIPHERAL_INDEX(GPIOF, AHB1, 0x1400, gpio_reg_t, 5)   \
-    __PERIPHERAL_INDEX(GPIOG, AHB1, 0x1800, gpio_reg_t, 6)   \
-    __PERIPHERAL_INDEX(GPIOH, AHB1, 0x1C00, gpio_reg_t, 7)   \
-    __PERIPHERAL_INDEX(GPIOI, AHB1, 0x2000, gpio_reg_t, 8)   \
-    __PERIPHERAL_INDEX(USART1, APB2, 0x1000, usart_reg_t, 0) \
-    __PERIPHERAL_INDEX(USART2, APB1, 0x4400, usart_reg_t, 0) \
-    __PERIPHERAL_INDEX(USART3, APB1, 0x4800, usart_reg_t, 0) \
-    __PERIPHERAL_INDEX(UART4, APB1, 0x4C00, usart_reg_t, 0)  \
-    __PERIPHERAL_INDEX(UART5, APB1, 0x5000, usart_reg_t, 0)  \
-    __PERIPHERAL_INDEX(USART6, APB2, 0x1400, usart_reg_t, 0)
+#define PERIPHERAL_TABLE                                           \
+    __PER(GPIOA, AHB1, 0x0000, gpio_reg_t, RCC_BIT_MAP(0, 0, 0))   \
+    __PER(GPIOB, AHB1, 0x0400, gpio_reg_t, RCC_BIT_MAP(1, 1, 1))   \
+    __PER(GPIOC, AHB1, 0x0800, gpio_reg_t, RCC_BIT_MAP(2, 2, 2))   \
+    __PER(GPIOD, AHB1, 0x0C00, gpio_reg_t, RCC_BIT_MAP(3, 3, 3))   \
+    __PER(GPIOE, AHB1, 0x1000, gpio_reg_t, RCC_BIT_MAP(4, 4, 4))   \
+    __PER(GPIOF, AHB1, 0x1400, gpio_reg_t, RCC_BIT_MAP(5, 5, 5))   \
+    __PER(GPIOG, AHB1, 0x1800, gpio_reg_t, RCC_BIT_MAP(6, 6, 6))   \
+    __PER(GPIOH, AHB1, 0x1C00, gpio_reg_t, RCC_BIT_MAP(7, 7, 7))   \
+    __PER(GPIOI, AHB1, 0x2000, gpio_reg_t, RCC_BIT_MAP(8, 8, 8))   \
+    __PER(USART1, APB2, 0x1000, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
+    __PER(USART2, APB1, 0x4400, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
+    __PER(USART3, APB1, 0x4800, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
+    __PER(UART4, APB1, 0x4C00, usart_reg_t, RCC_BIT_MAP(0, 0, 0))  \
+    __PER(UART5, APB1, 0x5000, usart_reg_t, RCC_BIT_MAP(0, 0, 0))  \
+    __PER(USART6, APB2, 0x1400, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
+    __PER(RCC, AHB1, 0x3800, rcc_reg_t, NO_RCC)                    \
+    __PER(EXTI, APB2, 0x3C00, exti_reg_t, NO_RCC)
 
 /* Peripheral registers's structures -----------------------------------------*/
 /**
@@ -132,53 +130,75 @@ typedef struct __pack
     __reg_t PLLI2SCFGR;            /* RCC PLLI2S configuration register. */
 } rcc_reg_t;
 
+typedef struct __pack
+{
+    __reg_t IMR;   /* Interrupt mask register. */
+    __reg_t EMR;   /* Event mask register. */
+    __reg_t RTSR;  /* Rising trigger selection register. */
+    __reg_t FTSR;  /* Falling trigger selection register. */
+    __reg_t SWIER; /* Software interrupt event register. */
+    __reg_t PR;    /* Pending register. */
+} exti_reg_t;
+
 /* Peripheral helper functions -----------------------------------------------*/
 /**
  * @brief   - Generate functions to get peripheral's base address. The function
  *            name format will be uint32_t *get_##name##_baseaddr().
  */
 #ifdef PERIPHERAL_TABLE
-#define __PERIPHERAL_INDEX(name, bus, offset, per_reg_t, rcc_en_clk) \
-    static inline uint32_t *get_##name##_baseaddr()                  \
-    {                                                                \
-        return (uint32_t *)(BUS_##bus##_BASEADDR + offset);          \
+#define __PER(name, bus, offset, per_reg_t, rcc_control)    \
+    static inline uint32_t *get_##name##_baseaddr()         \
+    {                                                       \
+        return (uint32_t *)(BUS_##bus##_BASEADDR + offset); \
     };
 PERIPHERAL_TABLE
-#undef __PERIPHERAL_INDEX
+#undef __PER
 #endif
-
-static inline uint32_t *get_RCC_baseaddr()
-{
-    return (uint32_t *)(BUS_AHB1_BASEADDR + 0x3800);
-};
 
 /**
  * @brief   - Generate functions to get peripheral's register base structure.
  */
 #ifdef PERIPHERAL_TABLE
-#define __PERIPHERAL_INDEX(name, bus, offset, per_reg_t, rcc_en_clk) \
-    static inline per_reg_t *get_##name##_reg()                      \
-    {                                                                \
-        return (per_reg_t *)get_##name##_baseaddr();                 \
+#define __PER(name, bus, offset, per_reg_t, rcc_control) \
+    static inline per_reg_t *get_##name##_reg()          \
+    {                                                    \
+        return (per_reg_t *)get_##name##_baseaddr();     \
     }
 PERIPHERAL_TABLE
-#undef __PERIPHERAL_INDEX
+#undef __PER
 #endif
-
-static inline rcc_reg_t *get_RCC_reg()
-{
-    return (rcc_reg_t *)get_RCC_baseaddr();
-}
 
 /**
  * @brief   - Generate functions to enable peripheral's clock.
  */
 #ifdef PERIPHERAL_TABLE
-#define __PERIPHERAL_INDEX(name, bus, offset, per_reg_t, rcc_en_clk) \
-    static inline void enable_##name##_clk()                         \
-    {                                                                \
-        get_RCC_reg()->bus##ENR |= (1 << rcc_en_clk);                \
+#define RCC_BIT_MAP(reset, enable_clk, enable_lp_clk) |= (1 << enable_clk)
+#define NO_RCC
+#define __PER(name, bus, offset, per_reg_t, rcc_control) \
+    static inline void enable_##name##_clk()             \
+    {                                                    \
+        get_RCC_reg()->bus##ENR rcc_control;             \
     }
 PERIPHERAL_TABLE
-#undef __PERIPHERAL_INDEX
+
+#undef NO_RCC
+#undef RCC_BIT_MAP
+#undef __PER
+#endif
+
+/**
+ * @brief   - Generate functions to reset peripherals.
+ */
+#ifdef PERIPHERAL_TABLE
+#define RCC_BIT_MAP(reset, enable_clk, enable_lp_clk) |= (1 << reset)
+#define NO_RCC
+#define __PER(name, bus, offset, per_reg_t, rcc_control) \
+    static inline void reset_##name()                    \
+    {                                                    \
+        get_RCC_reg()->bus##RSTR rcc_control;            \
+    }
+PERIPHERAL_TABLE
+#undef NO_RCC
+#undef RCC_BIT_MAP
+#undef __PER
 #endif

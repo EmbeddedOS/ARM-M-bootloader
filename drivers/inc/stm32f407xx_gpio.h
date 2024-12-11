@@ -105,10 +105,14 @@ typedef struct
     __gpio_init(get_##port##_reg(), config); \
 })
 
+#define gpio_read_pin(port, pin, val) ({           \
+    __gpio_read_pin(get_##port##_reg(), pin, val); \
+})
+
 int __gpio_init(gpio_reg_t *reg, const gpio_pin_config_t *config);
 
-int gpio_read_pin(gpio_reg_t *reg, uint8_t pin, uint8_t *val);
+int __gpio_read_pin(gpio_reg_t *reg, gpio_pin_no_t pin, uint8_t *val);
 
-int gpio_write_pin(gpio_reg_t *reg, uint8_t pin, uint8_t val);
+int __gpio_write_pin(gpio_reg_t *reg, gpio_pin_no_t pin, uint8_t val);
 
-int gpio_config_deinit(gpio_reg_t *reg, uint8_t pin);
+int __gpio_config_deinit(gpio_reg_t *reg, gpio_pin_no_t pin);

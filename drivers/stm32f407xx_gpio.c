@@ -18,7 +18,7 @@ int __gpio_init(gpio_reg_t *reg, const gpio_pin_config_t *config)
     return res;
 }
 
-int gpio_read_pin(gpio_reg_t *reg, uint8_t pin, uint8_t *val)
+int __gpio_read_pin(gpio_reg_t *reg, gpio_pin_no_t pin, uint8_t *val)
 {
 
     int res = 0;
@@ -26,12 +26,12 @@ int gpio_read_pin(gpio_reg_t *reg, uint8_t pin, uint8_t *val)
     return res;
 }
 
-int gpio_write_pin(gpio_reg_t *reg, uint8_t pin, uint8_t val)
+int __gpio_write_pin(gpio_reg_t *reg, gpio_pin_no_t pin, uint8_t val)
 {
     return 0;
 }
 
-int gpio_config_deinit(gpio_reg_t *reg, uint8_t pin)
+int __gpio_config_deinit(gpio_reg_t *reg, gpio_pin_no_t pin)
 {
     return 0;
 }

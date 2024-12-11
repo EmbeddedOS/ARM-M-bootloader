@@ -4,3 +4,4 @@ toolchain/
 *.map
 *.bin
 bin/*
+.vscode/

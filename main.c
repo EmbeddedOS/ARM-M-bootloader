@@ -11,6 +11,6 @@ void print_uart0(const char *s) {
 
 int main()
 {
-    gpio_read_pin(NULL, 0, NULL);
+    gpio_read_pin(GPIOA, GPIO_PIN_NO_00, NULL);
     print_uart0("Hi there uart1\n");
 }
