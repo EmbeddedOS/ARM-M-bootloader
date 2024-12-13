@@ -2,18 +2,29 @@
  * @brief   - General architecture code for STM32F407xx SoC.
  */
 #pragma once
+#include "stm32407xx_types.h"
 
 /* Public defines ------------------------------------------------------------*/
 #define __pack __attribute__((packed, aligned(1)))
 
+#define get_bit(reg, pos) ({ reg & (1 << pos); })
+
+#define set_bit(reg, pos) ({ reg |= (1 << pos); })
+
+#define clear_bit(reg, pos) ({ reg &= !(1 << pos); })
+
+#define change_bit(reg, pos, val) ({                        \
+    reg = (val) ? (reg | (1 << pos) : (reg & !(1 << pos))); \
+})
+
+#define register_set_bit_range(reg, start, val, len) ({ \
+    for (uint8_t i = 0; i < len; i++)                   \
+    {                                                   \
+        change_bit(reg, start + i, 1, get_bit(val, i)); \
+    }                                                   \
+})
+
 /* Public types --------------------------------------------------------------*/
-typedef unsigned int uint32_t;
-typedef unsigned char uint8_t;
-
-#define __reg_t volatile uint32_t
-#define __reg (volatile uint32_t *)
-
-typedef uint32_t __reserved_reg_t;
 
 /* Memories's base addresses -------------------------------------------------*/
 #define MEM_FLASH_BASEADDR 0x08000000U
@@ -61,7 +72,7 @@ typedef uint32_t __reserved_reg_t;
  *            register (GPIOx_BSRR), a 32-bit locking register (GPIOx_LCKR) and
  *            two 32-bit alternate function selection register (GPIOx_AFRH and
  *            GPIOx_AFRL).
- */ 
+ */
 typedef struct __pack
 {
     __reg_t MODER;   /* GPIO port mode register.                 */
