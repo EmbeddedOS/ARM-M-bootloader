@@ -99,8 +99,13 @@ typedef struct
     gpio_aternate_function_t alternative_function;
 } gpio_pin_config_t;
 
-/* Public types --------------------------------------------------------------*/
-int gpio_config_init(gpio_reg_t *reg, const gpio_pin_config_t *config);
+/* Public function prototypes ------------------------------------------------*/
+#define gpio_init(port, config) ({           \
+    enable_##port##_clk();                   \
+    __gpio_init(get_##port##_reg(), config); \
+})
+
+int __gpio_init(gpio_reg_t *reg, const gpio_pin_config_t *config);
 
 int gpio_read_pin(gpio_reg_t *reg, uint8_t pin, uint8_t *val);
 
