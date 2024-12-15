@@ -43,7 +43,8 @@
     __PER(UART5, APB1, 0x5000, usart_reg_t, RCC_BIT_MAP(0, 0, 0))  \
     __PER(USART6, APB2, 0x1400, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
     __PER(RCC, AHB1, 0x3800, rcc_reg_t, NO_RCC)                    \
-    __PER(EXTI, APB2, 0x3C00, exti_reg_t, NO_RCC)
+    __PER(EXTI, APB2, 0x3C00, exti_reg_t, NO_RCC)                  \
+    __PER(SYSCONFIG, APB2, 0x3800, sysconfig_reg_t, RCC_BIT_MAP(14, 14, 14))
 
 /* Peripheral registers's structures -----------------------------------------*/
 /**
@@ -113,6 +114,9 @@ typedef struct __pack
     reg_t PLLI2SCFGR;            /* RCC PLLI2S configuration reg. */
 } rcc_reg_t;
 
+/**
+ * @brief   -
+ */
 typedef struct __pack
 {
     reg_t IMR;   /* Interrupt mask reg. */
@@ -122,6 +126,17 @@ typedef struct __pack
     reg_t SWIER; /* Software interrupt event reg. */
     reg_t PR;    /* Pending reg. */
 } exti_reg_t;
+
+typedef struct __pack
+{
+    reg_t MEMRMP;  /* SYSCFG memory remap reg. */
+    reg_t PMC;     /* SYSCFG peripheral mode configuration reg. */
+    reg_t EXTICR1; /* SYSCFG external interrupt configuration reg 1. */
+    reg_t EXTICR2; /* SYSCFG external interrupt configuration reg 2. */
+    reg_t EXTICR3; /* SYSCFG external interrupt configuration reg 3. */
+    reg_t EXTICR4; /* SYSCFG external interrupt configuration reg 4. */
+    reg_t CMPCR;   /* Compensation cell control reg. */
+} sysconfig_reg_t;
 
 /* Peripheral helper functions -----------------------------------------------*/
 /**
