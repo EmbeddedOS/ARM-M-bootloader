@@ -7,23 +7,6 @@
 /* Public defines ------------------------------------------------------------*/
 #define __pack __attribute__((packed, aligned(1)))
 
-#define get_bit(reg, pos) ({ reg & (1 << pos); })
-
-#define set_bit(reg, pos) ({ reg |= (1 << pos); })
-
-#define clear_bit(reg, pos) ({ reg &= !(1 << pos); })
-
-#define change_bit(reg, pos, val) ({                        \
-    reg = (val) ? (reg | (1 << pos) : (reg & !(1 << pos))); \
-})
-
-#define change_bits_range(reg, start, val, len) ({      \
-    for (uint8_t i = 0; i < len; i++)                   \
-    {                                                   \
-        change_bit(reg, start + i, 1, get_bit(val, i)); \
-    }                                                   \
-})
-
 /* Public types --------------------------------------------------------------*/
 
 /* Memories's base addresses -------------------------------------------------*/
@@ -73,71 +56,71 @@
  */
 typedef struct __pack
 {
-    __reg_t MODER;   /* GPIO port mode register.                 */
-    __reg_t OTYPER;  /* GPIO port output type register.          */
-    __reg_t OSPEEDR; /* GPIO port output speed register.         */
-    __reg_t PUPDR;   /* GPIO port pull-up/pull-down register.    */
-    __reg_t IDR;     /* GPIO port input data register.           */
-    __reg_t ODR;     /* GPIO port output data register.          */
-    __reg_t BSRR;    /* GPIO port bit set/reset register.        */
-    __reg_t LCKR;    /* GPIO port configuration lock register.   */
-    __reg_t AFRL;    /* GPIO alternate function low register.    */
-    __reg_t AFRH;    /* GPIO alternate function high register.   */
+    reg_t MODER;   /* GPIO port mode reg.                 */
+    reg_t OTYPER;  /* GPIO port output type reg.          */
+    reg_t OSPEEDR; /* GPIO port output speed reg.         */
+    reg_t PUPDR;   /* GPIO port pull-up/pull-down reg.    */
+    reg_t IDR;     /* GPIO port input data reg.           */
+    reg_t ODR;     /* GPIO port output data reg.          */
+    reg_t BSRR;    /* GPIO port bit set/reset reg.        */
+    reg_t LCKR;    /* GPIO port configuration lock reg.   */
+    reg_t AFRL;    /* GPIO alternate function low reg.    */
+    reg_t AFRH;    /* GPIO alternate function high reg.   */
 } gpio_reg_t;
 
 typedef struct __pack
 {
-    __reg_t SR;   /* Status register.                   */
-    __reg_t DR;   /* Data register.                     */
-    __reg_t BRR;  /* Baud rate register.                */
-    __reg_t CR1;  /* Control register 1.                */
-    __reg_t CR2;  /* Control register 2.                */
-    __reg_t CR3;  /* Control register 3.                */
-    __reg_t GTPR; /* Guard time and prescaler register. */
+    reg_t SR;   /* Status reg. */
+    reg_t DR;   /* Data reg. */
+    reg_t BRR;  /* Baud rate reg. */
+    reg_t CR1;  /* Control reg 1. */
+    reg_t CR2;  /* Control reg 2. */
+    reg_t CR3;  /* Control reg 3. */
+    reg_t GTPR; /* Guard time and prescaler reg. */
 } usart_reg_t;
 
 typedef struct __pack
 {
-    __reg_t CR;                    /* RCC clock control register. */
-    __reg_t PLLCFGR;               /* RCC PLL configuration register. */
-    __reg_t CFGR;                  /* RCC clock configuration register. */
-    __reg_t CIR;                   /* RCC clock interrupt register. */
-    __reg_t AHB1RSTR;              /* RCC AHB1 peripheral reset register. */
-    __reg_t AHB2RSTR;              /* RCC AHB2 peripheral reset register. */
-    __reg_t AHB3RSTR;              /* RCC AHB3 peripheral reset register. */
-    __reserved_reg_t RESERVED0;    /* Reserved. */
-    __reg_t APB1RSTR;              /* RCC APB1 peripheral reset register. */
-    __reg_t APB2RSTR;              /* RCC APB2 peripheral reset register. */
-    __reserved_reg_t RESERVED1[2]; /* Reserved. */
-    __reg_t AHB1ENR;               /* RCC AHB1 peripheral clock enable register. */
-    __reg_t AHB2ENR;               /* RCC AHB2 peripheral clock enable register. */
-    __reg_t AHB3ENR;               /* RCC AHB3 peripheral clock enable register. */
-    __reserved_reg_t RESERVED2;    /* Reserved. */
-    __reg_t APB1ENR;               /* RCC APB1 peripheral clock enable register. */
-    __reg_t APB2ENR;               /* RCC APB2 peripheral clock enable register. */
-    __reserved_reg_t RESERVED3[2]; /* Reserved. */
-    __reg_t AHB1LPENR;             /* RCC AHB1 peripheral clock enable in low power mode register. */
-    __reg_t AHB2LPENR;             /* RCC AHB2 peripheral clock enable in low power mode register. */
-    __reg_t AHB3LPENR;             /* RCC AHB3 peripheral clock enable in low power mode register. */
-    __reserved_reg_t RESERVED4;    /* Reserved. */
-    __reg_t APB1LPENR;             /* RCC APB1 peripheral clock enable in low power mode register. */
-    __reg_t APB2LPENR;             /* RCC APB2 peripheral clock enable in low power mode register. */
-    __reserved_reg_t RESERVED5[2]; /* Reserved. */
-    __reg_t BDCR;                  /* RCC Backup domain control register. */
-    __reg_t CSR;                   /* RCC clock control & status register. */
-    __reserved_reg_t RESERVED6[2]; /* Reserved. */
-    __reg_t SSCGR;                 /* RCC spread spectrum clock generation register. */
-    __reg_t PLLI2SCFGR;            /* RCC PLLI2S configuration register. */
+    reg_t CR;                    /* RCC clock control reg. */
+    reg_t PLLCFGR;               /* RCC PLL configuration reg. */
+    reg_t CFGR;                  /* RCC clock configuration reg. */
+    reg_t CIR;                   /* RCC clock interrupt reg. */
+    reg_t AHB1RSTR;              /* RCC AHB1 peripheral reset reg. */
+    reg_t AHB2RSTR;              /* RCC AHB2 peripheral reset reg. */
+    reg_t AHB3RSTR;              /* RCC AHB3 peripheral reset reg. */
+    reserved_reg_t RESERVED0;    /* Reserved. */
+    reg_t APB1RSTR;              /* RCC APB1 peripheral reset reg. */
+    reg_t APB2RSTR;              /* RCC APB2 peripheral reset reg. */
+    reserved_reg_t RESERVED1[2]; /* Reserved. */
+    reg_t AHB1ENR;               /* RCC AHB1 peripheral clock enable reg. */
+    reg_t AHB2ENR;               /* RCC AHB2 peripheral clock enable reg. */
+    reg_t AHB3ENR;               /* RCC AHB3 peripheral clock enable reg. */
+    reserved_reg_t RESERVED2;    /* Reserved. */
+    reg_t APB1ENR;               /* RCC APB1 peripheral clock enable reg. */
+    reg_t APB2ENR;               /* RCC APB2 peripheral clock enable reg. */
+    reserved_reg_t RESERVED3[2]; /* Reserved. */
+    reg_t AHB1LPENR;             /* RCC AHB1EN in low power mode reg. */
+    reg_t AHB2LPENR;             /* RCC AHB2EN in low power mode reg. */
+    reg_t AHB3LPENR;             /* RCC AHB3EN in low power mode reg. */
+    reserved_reg_t RESERVED4;    /* Reserved. */
+    reg_t APB1LPENR;             /* RCC APB1EN in low power mode reg. */
+    reg_t APB2LPENR;             /* RCC APB2EN in low power mode reg. */
+    reserved_reg_t RESERVED5[2]; /* Reserved. */
+    reg_t BDCR;                  /* RCC Backup domain control reg. */
+    reg_t CSR;                   /* RCC clock control & status reg. */
+    reserved_reg_t RESERVED6[2]; /* Reserved. */
+    reg_t SSCGR;                 /* RCC spread spectrum clock generation reg. */
+    reg_t PLLI2SCFGR;            /* RCC PLLI2S configuration reg. */
 } rcc_reg_t;
 
 typedef struct __pack
 {
-    __reg_t IMR;   /* Interrupt mask register. */
-    __reg_t EMR;   /* Event mask register. */
-    __reg_t RTSR;  /* Rising trigger selection register. */
-    __reg_t FTSR;  /* Falling trigger selection register. */
-    __reg_t SWIER; /* Software interrupt event register. */
-    __reg_t PR;    /* Pending register. */
+    reg_t IMR;   /* Interrupt mask reg. */
+    reg_t EMR;   /* Event mask reg. */
+    reg_t RTSR;  /* Rising trigger selection reg. */
+    reg_t FTSR;  /* Falling trigger selection reg. */
+    reg_t SWIER; /* Software interrupt event reg. */
+    reg_t PR;    /* Pending reg. */
 } exti_reg_t;
 
 /* Peripheral helper functions -----------------------------------------------*/
@@ -202,3 +185,21 @@ PERIPHERAL_TABLE
 #undef RCC_BIT_MAP
 #undef __PER
 #endif
+
+/* Helper functions ----------------------------------------------------------*/
+#define get_bit(reg, pos) ({ reg & (1 << pos); })
+
+#define set_bit(reg, pos) ({ reg |= (1 << pos); })
+
+#define clear_bit(reg, pos) ({ reg &= !(1 << pos); })
+
+#define change_bit(reg, pos, val) ({                        \
+    reg = (val) ? (reg | (1 << pos) : (reg & !(1 << pos))); \
+})
+
+#define change_bits_range(reg, start, val, len) ({      \
+    for (uint8_t i = 0; i < len; i++)                   \
+    {                                                   \
+        change_bit(reg, start + i, 1, get_bit(val, i)); \
+    }                                                   \
+})

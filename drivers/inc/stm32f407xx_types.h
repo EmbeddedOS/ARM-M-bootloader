@@ -143,7 +143,7 @@ typedef unsigned char uint8_t;
 #define true 1
 #define false 0
 
-#define __reg_t volatile uint32_t
+#define reg_t volatile uint32_t
 #define __reg (volatile uint32_t *)
 
-typedef uint32_t __reserved_reg_t;
+typedef uint32_t reserved_reg_t;
