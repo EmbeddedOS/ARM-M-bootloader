@@ -135,7 +135,7 @@ typedef struct __pack
     reg_t EXTICR2; /* SYSCFG external interrupt configuration reg 2. */
     reg_t EXTICR3; /* SYSCFG external interrupt configuration reg 3. */
     reg_t EXTICR4; /* SYSCFG external interrupt configuration reg 4. */
-    reg_t CMPCR;   /* Compensation cell control reg. */
+    reg_t CMPCR;   /* SYSCFG Compensation cell control reg. */
 } sysconfig_reg_t;
 
 /* Peripheral helper functions -----------------------------------------------*/
