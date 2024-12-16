@@ -25,26 +25,27 @@
 /**
  * @brief   - SoC Peripheral Table, where columns are:
  *            name - bus - offset - register struct - RCC control bit map.
+ * @note    - RCC_BIT_MAP(reset_bit, enable_clk_bit, enable_clk_lp_bit)
  */
-#define PERIPHERAL_TABLE                                           \
-    __PER(GPIOA, AHB1, 0x0000, gpio_reg_t, RCC_BIT_MAP(0, 0, 0))   \
-    __PER(GPIOB, AHB1, 0x0400, gpio_reg_t, RCC_BIT_MAP(1, 1, 1))   \
-    __PER(GPIOC, AHB1, 0x0800, gpio_reg_t, RCC_BIT_MAP(2, 2, 2))   \
-    __PER(GPIOD, AHB1, 0x0C00, gpio_reg_t, RCC_BIT_MAP(3, 3, 3))   \
-    __PER(GPIOE, AHB1, 0x1000, gpio_reg_t, RCC_BIT_MAP(4, 4, 4))   \
-    __PER(GPIOF, AHB1, 0x1400, gpio_reg_t, RCC_BIT_MAP(5, 5, 5))   \
-    __PER(GPIOG, AHB1, 0x1800, gpio_reg_t, RCC_BIT_MAP(6, 6, 6))   \
-    __PER(GPIOH, AHB1, 0x1C00, gpio_reg_t, RCC_BIT_MAP(7, 7, 7))   \
-    __PER(GPIOI, AHB1, 0x2000, gpio_reg_t, RCC_BIT_MAP(8, 8, 8))   \
-    __PER(USART1, APB2, 0x1000, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
-    __PER(USART2, APB1, 0x4400, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
-    __PER(USART3, APB1, 0x4800, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
-    __PER(UART4, APB1, 0x4C00, usart_reg_t, RCC_BIT_MAP(0, 0, 0))  \
-    __PER(UART5, APB1, 0x5000, usart_reg_t, RCC_BIT_MAP(0, 0, 0))  \
-    __PER(USART6, APB2, 0x1400, usart_reg_t, RCC_BIT_MAP(0, 0, 0)) \
-    __PER(RCC, AHB1, 0x3800, rcc_reg_t, NO_RCC)                    \
-    __PER(EXTI, APB2, 0x3C00, exti_reg_t, NO_RCC)                  \
-    __PER(SYSCONFIG, APB2, 0x3800, sysconfig_reg_t, RCC_BIT_MAP(14, 14, 14))
+#define PERIPHERAL_TABLE                                              \
+    __PER(GPIOA, AHB1, 0x0000, gpio_reg_t, RCC_BIT_MAP(0, 0, 0))      \
+    __PER(GPIOB, AHB1, 0x0400, gpio_reg_t, RCC_BIT_MAP(1, 1, 1))      \
+    __PER(GPIOC, AHB1, 0x0800, gpio_reg_t, RCC_BIT_MAP(2, 2, 2))      \
+    __PER(GPIOD, AHB1, 0x0C00, gpio_reg_t, RCC_BIT_MAP(3, 3, 3))      \
+    __PER(GPIOE, AHB1, 0x1000, gpio_reg_t, RCC_BIT_MAP(4, 4, 4))      \
+    __PER(GPIOF, AHB1, 0x1400, gpio_reg_t, RCC_BIT_MAP(5, 5, 5))      \
+    __PER(GPIOG, AHB1, 0x1800, gpio_reg_t, RCC_BIT_MAP(6, 6, 6))      \
+    __PER(GPIOH, AHB1, 0x1C00, gpio_reg_t, RCC_BIT_MAP(7, 7, 7))      \
+    __PER(GPIOI, AHB1, 0x2000, gpio_reg_t, RCC_BIT_MAP(8, 8, 8))      \
+    __PER(USART1, APB2, 0x1000, usart_reg_t, RCC_BIT_MAP(4, 4, 4))    \
+    __PER(USART2, APB1, 0x4400, usart_reg_t, RCC_BIT_MAP(17, 17, 17)) \
+    __PER(USART3, APB1, 0x4800, usart_reg_t, RCC_BIT_MAP(18, 18, 18)) \
+    __PER(UART4, APB1, 0x4C00, usart_reg_t, RCC_BIT_MAP(19, 19, 19))  \
+    __PER(UART5, APB1, 0x5000, usart_reg_t, RCC_BIT_MAP(20, 20, 20))  \
+    __PER(USART6, APB2, 0x1400, usart_reg_t, RCC_BIT_MAP(5, 5, 5))    \
+    __PER(RCC, AHB1, 0x3800, rcc_reg_t, NO_RCC)                       \
+    __PER(EXTI, APB2, 0x3C00, exti_reg_t, NO_RCC)                     \
+    __PER(SYSCFG, APB2, 0x3800, syscfg_reg_t, RCC_BIT_MAP(14, 14, 14))
 
 /* Peripheral registers's structures -----------------------------------------*/
 /**
@@ -115,7 +116,13 @@ typedef struct __pack
 } rcc_reg_t;
 
 /**
- * @brief   -
+ * @brief   - The External interrupt/event controller consists of up to 23 edge
+ *            detectors for generating event/interrupt requests. Each input line
+ *            can be independently configured to select the type (interrupt or
+ *            event) and the corresponding trigger event (raising or falling or
+ *            both).
+ *          - A pending register maintains the status line of the interrupt
+ *            requests.
  */
 typedef struct __pack
 {
@@ -136,7 +143,24 @@ typedef struct __pack
     reg_t EXTICR3; /* SYSCFG external interrupt configuration reg 3. */
     reg_t EXTICR4; /* SYSCFG external interrupt configuration reg 4. */
     reg_t CMPCR;   /* SYSCFG Compensation cell control reg. */
-} sysconfig_reg_t;
+} syscfg_reg_t;
+
+typedef struct __pack
+{
+    reg_t ISER[8];
+    reserved_reg_t reserved0[15];
+    reg_t ICER[8];
+    reserved_reg_t reserved1[15];
+    reg_t ISPR[8];
+    reserved_reg_t reserved2[15];
+    reg_t ICPR[8];
+    reserved_reg_t reserved3[15];
+    reg_t IABR[8];
+    reserved_reg_t reserved4[15];
+    reg_t IPR[60];
+    reserved_reg_t reserved5[644];
+    reg_t STIR;
+} nvic_reg_t;
 
 /* Peripheral helper functions -----------------------------------------------*/
 /**
