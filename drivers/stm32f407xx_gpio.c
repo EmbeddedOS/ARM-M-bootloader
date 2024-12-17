@@ -105,20 +105,77 @@ int __gpio_init(gpio_reg_t *reg, const gpio_pin_config_t *config)
     return res;
 }
 
-int __gpio_read_pin(gpio_reg_t *reg, gpio_pin_no_t pin, uint8_t *val)
+int __gpio_read_pin(gpio_reg_t *reg, gpio_pin_no_t pin, gpio_pin_state_t *val)
 {
-
     int res = 0;
+
+    if (pin > GPIO_PIN_NO_15)
+    {
+        return -EINVAL;
+    }
+
+    val = get_bit(reg->IDR, pin) ? GPIO_PIN_STATE_SET : GPIO_PIN_STATE_RESET;
 
     return res;
 }
 
-int __gpio_write_pin(gpio_reg_t *reg, gpio_pin_no_t pin, uint8_t val)
+int __gpio_write_pin(gpio_reg_t *reg, gpio_pin_no_t pin, gpio_pin_state_t val)
 {
+    if (val == GPIO_PIN_STATE_SET)
+    {
+        set_bit(reg->IDR, pin);
+    }
+    else
+    {
+        clear_bit(reg->IDR, pin);
+    }
+
     return 0;
 }
 
-int __gpio_config_deinit(gpio_reg_t *reg, gpio_pin_no_t pin)
+int __gpio_deinit(gpio_reg_t *reg, gpio_pin_no_t pin)
 {
-    return 0;
+    int res = 0;
+    if (pin > GPIO_PIN_NO_15)
+    {
+        return -EINVAL;
+    }
+
+    /* 1. Deinit EXTI configuration. */
+    {
+        uint8_t exti_reg_index = pin / 4;
+        uint8_t exti_reg_pos = pin % 4;
+        uint8_t port_index = gpio_get_EXTICR_port_index(reg);
+
+        if ((get_SYSCFG_reg()->EXTICR[exti_reg_index] &
+             (0xF << (4 * exti_reg_pos))) ==
+            (port_index << (4 * exti_reg_pos)))
+        {
+            modify_reg(get_SYSCFG_reg()->EXTICR[exti_reg_index],
+                       exti_reg_pos * 4, 4, 0x0);
+
+            clear_bit(get_EXTI_reg()->RTSR, pin);
+            clear_bit(get_EXTI_reg()->FTSR, pin);
+            clear_bit(get_EXTI_reg()->EMR, pin);
+            clear_bit(get_EXTI_reg()->IMR, pin);
+        }
+    }
+
+    /* 2. Reset registers. */
+    modify_reg(reg->MODER, pin * 2, 2, 0x0);
+    modify_reg(reg->PUPDR, pin * 2, 2, 0x0);
+    modify_reg(reg->OTYPER, pin, 1, 0x0);
+    modify_reg(reg->OSPEEDR, pin * 2, 2, 0x0);
+
+    /* 3. Reset AF registers. */
+    if ((pin / 8) == 0)
+    { // Low AF register.
+        modify_reg(reg->AFRL, (pin % 8) * 4, 4, 0x0);
+    }
+    else
+    { // High AF register.
+        modify_reg(reg->AFRH, (pin % 8) * 4, 4, 0x0);
+    }
+
+    return res;
 }

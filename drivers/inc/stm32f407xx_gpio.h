@@ -159,6 +159,12 @@ typedef struct
     gpio_af_t af;
 } gpio_pin_config_t;
 
+typedef enum
+{
+    GPIO_PIN_STATE_RESET = 0,
+    GPIO_PIN_STATE_SET = 1
+} gpio_pin_state_t;
+
 /* Public function prototypes ------------------------------------------------*/
 #define gpio_init(port, config) ({           \
     enable_##port##_clk();                   \
@@ -169,10 +175,18 @@ typedef struct
     __gpio_read_pin(get_##port##_reg(), pin, val); \
 })
 
+#define gpio_write_pin(port, pin, val) ({           \
+    __gpio_write_pin(get_##port##_reg(), pin, val); \
+})
+
+#define gpio_deinit(port, pin) ({           \
+    __gpio_deinit(get_##port##_reg(), pin); \
+})
+
 int __gpio_init(gpio_reg_t *reg, const gpio_pin_config_t *config);
 
-int __gpio_read_pin(gpio_reg_t *reg, gpio_pin_no_t pin, uint8_t *val);
+int __gpio_read_pin(gpio_reg_t *reg, gpio_pin_no_t pin, gpio_pin_state_t *val);
 
-int __gpio_write_pin(gpio_reg_t *reg, gpio_pin_no_t pin, uint8_t val);
+int __gpio_write_pin(gpio_reg_t *reg, gpio_pin_no_t pin, gpio_pin_state_t val);
 
-int __gpio_config_deinit(gpio_reg_t *reg, gpio_pin_no_t pin);
+int __gpio_deinit(gpio_reg_t *reg, gpio_pin_no_t pin);
