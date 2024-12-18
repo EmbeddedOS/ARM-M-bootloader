@@ -13,11 +13,28 @@
  *              - Input data to input data register (GPIOx_IDR) or peripheral
  *                (alternate function input).
  *              - Analog function.
- *              - Locking meachinism (GPIOx_LCKR) to freeze I/O configuration.
+ *              - Locking mechanism (GPIOx_LCKR) to freeze I/O configuration.
  *              - Alternate function I/O selection registers.
  */
 #pragma once
 #include "stm32f407xx.h"
+
+/* Private define ------------------------------------------------------------*/
+#define __GPIO_MODE_POS 0U
+#define __GPIO_MODE_INPUT (0x0U << __GPIO_MODE_POS)
+#define __GPIO_MODE_OUTPUT (0x1U << __GPIO_MODE_POS)
+#define __GPIO_MODE_AF (0x2U << __GPIO_MODE_POS)
+#define __GPIO_MODE_ANALOG (0x3U << __GPIO_MODE_POS)
+#define __GPIO_OUTPUT_MODE_POS 4U
+#define __GPIO_OUTPUT_MODE_PP (0x0U << __GPIO_OUTPUT_MODE_POS)
+#define __GPIO_OUTPUT_MODE_OD (0x1U << __GPIO_OUTPUT_MODE_POS)
+#define __GPIO_EXTI_MODE_POS 10U
+#define __GPIO_EXTI_IT (0x0U << __GPIO_EXTI_MODE_POS)
+#define __GPIO_EXTI_EVT (0x1U << __GPIO_EXTI_MODE_POS)
+#define __GPIO_EXTI_TRIGGER_MODE_POS 16U
+#define __GPIO_TRIGGER_RISING (0x0U << __GPIO_EXTI_MODE_POS)
+#define __GPIO_TRIGGER_FALLING (0x1U << __GPIO_EXTI_MODE_POS)
+#define __GPIO_OUPUT
 
 /* Public types --------------------------------------------------------------*/
 typedef enum
@@ -42,10 +59,18 @@ typedef enum
 
 typedef enum
 {
-    GPIO_MODE_INPUT = 0x00,
-    GPIO_MODE_OUTPUT = 0x01,
-    GPIO_MODE_ALTERNATE_FUNCTION = 0x10,
-    GPIO_MODE_ANALOG = 0x11
+    GPIO_MODE_INPUT = __GPIO_MODE_INPUT,
+    GPIO_MODE_AF_PP = __GPIO_MODE_AF | __GPIO_OUTPUT_MODE_PP,
+    GPIO_MODE_AF_OD = __GPIO_MODE_AF | __GPIO_OUTPUT_MODE_OD,
+    GPIO_MODE_ANALOG = __GPIO_MODE_ANALOG,
+    GPIO_MODE_IT_RISING = __GPIO_MODE_INPUT | __GPIO_EXTI_IT | __GPIO_TRIGGER_RISING,
+    GPIO_MODE_IT_FALLING = __GPIO_MODE_INPUT | __GPIO_EXTI_IT | __GPIO_TRIGGER_FALLING,
+    GPIO_MODE_IT_RISING_FALLING = __GPIO_MODE_INPUT | __GPIO_EXTI_IT | __GPIO_TRIGGER_RISING | __GPIO_TRIGGER_FALLING,
+    GPIO_MODE_EVT_RISING = __GPIO_MODE_INPUT | __GPIO_EXTI_EVT | __GPIO_TRIGGER_RISING,
+    GPIO_MODE_EVT_FALLING = __GPIO_MODE_INPUT | __GPIO_EXTI_EVT | __GPIO_TRIGGER_FALLING,
+    GPIO_MODE_EVT_RISING_FALLING = __GPIO_MODE_INPUT | __GPIO_EXTI_EVT | __GPIO_TRIGGER_RISING | __GPIO_TRIGGER_FALLING,
+    GPIO_MODE_OUTPUT_PP = __GPIO_MODE_OUTPUT | __GPIO_OUTPUT_MODE_PP,
+    GPIO_MODE_OUTPUT_OD = __GPIO_MODE_OUTPUT | __GPIO_OUTPUT_MODE_OD
 } gpio_mode_t;
 
 typedef enum
@@ -93,7 +118,6 @@ typedef struct
 {
     gpio_pin_no_t pin_no;
     gpio_mode_t mode;
-    gpio_output_mode_t output_mode;
     gpio_output_speed_t output_speed;
     gpio_output_pupd_mode_t pupd_mode;
     gpio_aternate_function_t alternative_function;
