@@ -136,13 +136,10 @@ typedef struct __pack
 
 typedef struct __pack
 {
-    reg_t MEMRMP;  /* SYSCFG memory remap reg. */
-    reg_t PMC;     /* SYSCFG peripheral mode configuration reg. */
-    reg_t EXTICR1; /* SYSCFG external interrupt configuration reg 1. */
-    reg_t EXTICR2; /* SYSCFG external interrupt configuration reg 2. */
-    reg_t EXTICR3; /* SYSCFG external interrupt configuration reg 3. */
-    reg_t EXTICR4; /* SYSCFG external interrupt configuration reg 4. */
-    reg_t CMPCR;   /* SYSCFG Compensation cell control reg. */
+    reg_t MEMRMP;    /* SYSCFG memory remap reg. */
+    reg_t PMC;       /* SYSCFG peripheral mode configuration reg. */
+    reg_t EXTICR[3]; /* SYSCFG external interrupt configuration regs. */
+    reg_t CMPCR;     /* SYSCFG Compensation cell control reg. */
 } syscfg_reg_t;
 
 typedef struct __pack
@@ -230,14 +227,14 @@ PERIPHERAL_TABLE
 
 #define set_bit(reg, pos) ({ reg |= (1 << pos); })
 
-#define clear_bit(reg, pos) ({ reg &= !(1 << pos); })
+#define clear_bit(reg, pos) ({ reg &= ~(1 << pos); })
 
 #define modify_bit(reg, pos, val) ({                        \
     reg = (val) ? (reg | (1 << pos) : (reg & !(1 << pos))); \
 })
 
-#define modify_reg(reg, pos, len, val)   \
-    ({                                   \
+#define modify_reg(reg, pos, len, val)    \
+    ({                                    \
         reg &= ~(((2 ^ len) - 1) << pos); \
-        reg |= (val << pos);            \
+        reg |= (val << pos);              \
     })

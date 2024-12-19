@@ -1,6 +1,26 @@
 #include <stm32f407xx_gpio.h>
 
-/* Public function -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+
+/* Private function prototypes -----------------------------------------------*/
+static inline uint8_t gpio_get_EXTICR_port_index(gpio_reg_t *reg);
+
+/* Private functions ---------------------------------------------------------*/
+static inline uint8_t gpio_get_EXTICR_port_index(gpio_reg_t *reg)
+{
+    return (reg == get_GPIOA_reg())   ? 0
+           : (reg == get_GPIOB_reg()) ? 1
+           : (reg == get_GPIOC_reg()) ? 2
+           : (reg == get_GPIOD_reg()) ? 3
+           : (reg == get_GPIOE_reg()) ? 4
+           : (reg == get_GPIOF_reg()) ? 5
+           : (reg == get_GPIOG_reg()) ? 6
+           : (reg == get_GPIOH_reg()) ? 7
+           : (reg == get_GPIOI_reg()) ? 8
+                                      : 0;
+}
+
+/* Public functions ----------------------------------------------------------*/
 int __gpio_init(gpio_reg_t *reg, const gpio_pin_config_t *config)
 {
     int res = 0;
@@ -45,6 +65,41 @@ int __gpio_init(gpio_reg_t *reg, const gpio_pin_config_t *config)
     /* 5. Configure input EXTI modes. */
     if (__GPIO_EXTI_MODE_IS_ENABLE(config->mode))
     {
+        /* 5.1. Enable SYSCFG clock. */
+        enable_SYSCFG_clk();
+
+        /* 5.2. Select source input for EXTIx external interrupt. */
+        uint8_t port_index = gpio_get_EXTICR_port_index(reg);
+        uint8_t reg_index = config->pin_no / 4;
+        uint8_t pos = config->pin_no % 4;
+        modify_reg(get_SYSCFG_reg()->EXTICR[reg_index], pos * 4, 4, port_index);
+
+        /* 5.3. Configure rising - falling edge trigger. */
+        clear_bit(get_EXTI_reg()->RTSR, config->pin_no);
+        if (__GPIO_GET_EXTI_TRIGGER_MODE(config->mode) & __GPIO_TRIGGER_RISING)
+        {
+            set_bit(get_EXTI_reg()->RTSR, config->pin_no);
+        }
+
+        clear_bit(get_EXTI_reg()->FTSR, config->pin_no);
+        if (__GPIO_GET_EXTI_TRIGGER_MODE(config->mode) & __GPIO_TRIGGER_FALLING)
+        {
+            set_bit(get_EXTI_reg()->FTSR, config->pin_no);
+        }
+
+        /* 5.4. Configure event mode. */
+        clear_bit(get_EXTI_reg()->EMR, config->pin_no);
+        if (__GPIO_GET_EXTI_MODE(config->mode) & __GPIO_EXTI_EVT)
+        {
+            set_bit(get_EXTI_reg()->EMR, config->pin_no);
+        }
+
+        /* 5.4. Configure interrup mode. */
+        clear_bit(get_EXTI_reg()->IMR, config->pin_no);
+        if (__GPIO_GET_EXTI_MODE(config->mode) & __GPIO_EXTI_IT)
+        {
+            set_bit(get_EXTI_reg()->IMR, config->pin_no);
+        }
     }
 
     return res;
