@@ -190,3 +190,4 @@ int __gpio_read_pin(gpio_reg_t *reg, gpio_pin_no_t pin, gpio_pin_state_t *val);
 int __gpio_write_pin(gpio_reg_t *reg, gpio_pin_no_t pin, gpio_pin_state_t val);
 
 int __gpio_deinit(gpio_reg_t *reg, gpio_pin_no_t pin);
+
