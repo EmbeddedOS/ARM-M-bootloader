@@ -232,13 +232,12 @@ PERIPHERAL_TABLE
 
 #define clear_bit(reg, pos) ({ reg &= !(1 << pos); })
 
-#define change_bit(reg, pos, val) ({                        \
+#define modify_bit(reg, pos, val) ({                        \
     reg = (val) ? (reg | (1 << pos) : (reg & !(1 << pos))); \
 })
 
-#define change_bits_range(reg, start, val, len) ({      \
-    for (uint8_t i = 0; i < len; i++)                   \
-    {                                                   \
-        change_bit(reg, start + i, 1, get_bit(val, i)); \
-    }                                                   \
-})
+#define modify_reg(reg, pos, len, val)   \
+    ({                                   \
+        reg &= ~(((2 ^ len) - 1) << pos); \
+        reg |= (val << pos);            \
+    })

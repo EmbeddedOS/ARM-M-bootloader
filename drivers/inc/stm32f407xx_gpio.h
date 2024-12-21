@@ -17,24 +17,7 @@
  *              - Alternate function I/O selection registers.
  */
 #pragma once
-#include "stm32f407xx.h"
-
-/* Private define ------------------------------------------------------------*/
-#define __GPIO_MODE_POS 0U
-#define __GPIO_MODE_INPUT (0x0U << __GPIO_MODE_POS)
-#define __GPIO_MODE_OUTPUT (0x1U << __GPIO_MODE_POS)
-#define __GPIO_MODE_AF (0x2U << __GPIO_MODE_POS)
-#define __GPIO_MODE_ANALOG (0x3U << __GPIO_MODE_POS)
-#define __GPIO_OUTPUT_MODE_POS 4U
-#define __GPIO_OUTPUT_MODE_PP (0x0U << __GPIO_OUTPUT_MODE_POS)
-#define __GPIO_OUTPUT_MODE_OD (0x1U << __GPIO_OUTPUT_MODE_POS)
-#define __GPIO_EXTI_MODE_POS 10U
-#define __GPIO_EXTI_IT (0x0U << __GPIO_EXTI_MODE_POS)
-#define __GPIO_EXTI_EVT (0x1U << __GPIO_EXTI_MODE_POS)
-#define __GPIO_EXTI_TRIGGER_MODE_POS 16U
-#define __GPIO_TRIGGER_RISING (0x0U << __GPIO_EXTI_MODE_POS)
-#define __GPIO_TRIGGER_FALLING (0x1U << __GPIO_EXTI_MODE_POS)
-#define __GPIO_OUPUT
+#include <stm32f407xx.h>
 
 /* Public types --------------------------------------------------------------*/
 typedef enum
@@ -59,68 +42,119 @@ typedef enum
 
 typedef enum
 {
+
+/**
+ * @brief   - The GPIO mode store multiple flags:
+ *              - offset 0x00, 3 bit basic mode.
+ *              - offset 0x03, 1 bit output mode.
+ *              - offset 0x04, 2 bit EXTI mode.
+ *              - offset 0x06, 2 bit EXTI trigger mode.
+ */
+#define __GPIO_MODE_POS 0x0U
+#define __GPIO_MODE (0x2U << __GPIO_MODE_POS)
+#define __GPIO_GET_MODE(reg) (reg & __GPIO_MODE)
+#define __GPIO_MODE_INPUT (0x0U << __GPIO_MODE_POS)
+#define __GPIO_MODE_OUTPUT (0x1U << __GPIO_MODE_POS)
+#define __GPIO_MODE_AF (0x2U << __GPIO_MODE_POS)
+#define __GPIO_MODE_ANALOG (0x3U << __GPIO_MODE_POS)
+
+#define __GPIO_OUTPUT_MODE_POS 0x3U
+#define __GPIO_OUTPUT_MODE_PP (0x0U << __GPIO_OUTPUT_MODE_POS)
+#define __GPIO_OUTPUT_MODE_OD (0x1U << __GPIO_OUTPUT_MODE_POS)
+#define __GPIO_OUTPUT_MODE (0x1U << __GPIO_OUTPUT_MODE_POS)
+#define __GPIO_GET_OUTPUT_MODE(reg) (reg & __GPIO_OUTPUT_MODE)
+
+#define __GPIO_EXTI_MODE_POS 0x4U
+#define __GPIO_EXTI_IT (0x1U << __GPIO_EXTI_MODE_POS)
+#define __GPIO_EXTI_EVT (0x2U << __GPIO_EXTI_MODE_POS)
+#define __GPIO_EXTI_MODE (0x2U << __GPIO_EXTI_MODE_POS)
+#define __GPIO_GET_EXTI_MODE(reg) (reg & __GPIO_EXTI_MODE)
+#define __GPIO_EXTI_MODE_IS_ENABLE(reg) (__GPIO_GET_EXTI_MODE(reg) != 0x0U)
+
+#define __GPIO_EXTI_TRIGGER_MODE_POS 0x6U
+#define __GPIO_TRIGGER_RISING (0x1U << __GPIO_EXTI_MODE_POS)
+#define __GPIO_TRIGGER_FALLING (0x2U << __GPIO_EXTI_MODE_POS)
+
     GPIO_MODE_INPUT = __GPIO_MODE_INPUT,
-    GPIO_MODE_AF_PP = __GPIO_MODE_AF | __GPIO_OUTPUT_MODE_PP,
-    GPIO_MODE_AF_OD = __GPIO_MODE_AF | __GPIO_OUTPUT_MODE_OD,
+    GPIO_MODE_AF_PP = __GPIO_MODE_AF |
+                      __GPIO_OUTPUT_MODE_PP,
+    GPIO_MODE_AF_OD = __GPIO_MODE_AF |
+                      __GPIO_OUTPUT_MODE_OD,
     GPIO_MODE_ANALOG = __GPIO_MODE_ANALOG,
-    GPIO_MODE_IT_RISING = __GPIO_MODE_INPUT | __GPIO_EXTI_IT | __GPIO_TRIGGER_RISING,
-    GPIO_MODE_IT_FALLING = __GPIO_MODE_INPUT | __GPIO_EXTI_IT | __GPIO_TRIGGER_FALLING,
-    GPIO_MODE_IT_RISING_FALLING = __GPIO_MODE_INPUT | __GPIO_EXTI_IT | __GPIO_TRIGGER_RISING | __GPIO_TRIGGER_FALLING,
-    GPIO_MODE_EVT_RISING = __GPIO_MODE_INPUT | __GPIO_EXTI_EVT | __GPIO_TRIGGER_RISING,
-    GPIO_MODE_EVT_FALLING = __GPIO_MODE_INPUT | __GPIO_EXTI_EVT | __GPIO_TRIGGER_FALLING,
-    GPIO_MODE_EVT_RISING_FALLING = __GPIO_MODE_INPUT | __GPIO_EXTI_EVT | __GPIO_TRIGGER_RISING | __GPIO_TRIGGER_FALLING,
-    GPIO_MODE_OUTPUT_PP = __GPIO_MODE_OUTPUT | __GPIO_OUTPUT_MODE_PP,
-    GPIO_MODE_OUTPUT_OD = __GPIO_MODE_OUTPUT | __GPIO_OUTPUT_MODE_OD
+    GPIO_MODE_IT_RISING = __GPIO_MODE_INPUT |
+                          __GPIO_EXTI_IT |
+                          __GPIO_TRIGGER_RISING,
+    GPIO_MODE_IT_FALLING = __GPIO_MODE_INPUT |
+                           __GPIO_EXTI_IT |
+                           __GPIO_TRIGGER_FALLING,
+    GPIO_MODE_IT_RISING_FALLING = __GPIO_MODE_INPUT |
+                                  __GPIO_EXTI_IT |
+                                  __GPIO_TRIGGER_RISING |
+                                  __GPIO_TRIGGER_FALLING,
+    GPIO_MODE_EVT_RISING = __GPIO_MODE_INPUT |
+                           __GPIO_EXTI_EVT |
+                           __GPIO_TRIGGER_RISING,
+    GPIO_MODE_EVT_FALLING = __GPIO_MODE_INPUT |
+                            __GPIO_EXTI_EVT |
+                            __GPIO_TRIGGER_FALLING,
+    GPIO_MODE_EVT_RISING_FALLING = __GPIO_MODE_INPUT |
+                                   __GPIO_EXTI_EVT |
+                                   __GPIO_TRIGGER_RISING |
+                                   __GPIO_TRIGGER_FALLING,
+    GPIO_MODE_OUTPUT_PP = __GPIO_MODE_OUTPUT |
+                          __GPIO_OUTPUT_MODE_PP,
+    GPIO_MODE_OUTPUT_OD = __GPIO_MODE_OUTPUT |
+                          __GPIO_OUTPUT_MODE_OD
 } gpio_mode_t;
 
 typedef enum
 {
-    GPIO_OUTPUT_MODE_PUSH_PULL = 0x00,
-    GPIO_OUTPUT_MODE_OPEN_DRAIN = 0x01
+    GPIO_OUTPUT_MODE_PUSH_PULL = 0x0,
+    GPIO_OUTPUT_MODE_OPEN_DRAIN = 0x1
 } gpio_output_mode_t;
 
 typedef enum
 {
-    GPIO_OUTPUT_SPEED_LOW = 0x00,
-    GPIO_OUTPUT_SPEED_MEDIUM = 0x01,
-    GPIO_OUTPUT_SPEED_HIGH = 0x10,
-    GPIO_OUTPUT_SPEED_VERY_HIGH = 0x11,
+    GPIO_OUTPUT_SPEED_LOW = 0x0,
+    GPIO_OUTPUT_SPEED_MEDIUM = 0x1,
+    GPIO_OUTPUT_SPEED_HIGH = 0x2,
+    GPIO_OUTPUT_SPEED_VERY_HIGH = 0x3,
 } gpio_output_speed_t;
 
 typedef enum
 {
-    GPIO_OUTPUT_PUPD_NO_PULL = 0x00,
-    GPIO_OUTPUT_PUPD_PULL_UP = 0x01,
-    GPIO_OUTPUT_PUPD_PULL_DOWN = 0x10,
+    GPIO_OUTPUT_PUPD_NO_PULL = 0x0,
+    GPIO_OUTPUT_PUPD_PULL_UP = 0x1,
+    GPIO_OUTPUT_PUPD_PULL_DOWN = 0x2,
 } gpio_output_pupd_mode_t;
 
 typedef enum
 {
-    GPIO_ALTERNATE_FUNCTION_00 = 0x00,
-    GPIO_ALTERNATE_FUNCTION_01 = 0x01,
-    GPIO_ALTERNATE_FUNCTION_02 = 0x02,
-    GPIO_ALTERNATE_FUNCTION_03 = 0x03,
-    GPIO_ALTERNATE_FUNCTION_04 = 0x04,
-    GPIO_ALTERNATE_FUNCTION_05 = 0x05,
-    GPIO_ALTERNATE_FUNCTION_06 = 0x06,
-    GPIO_ALTERNATE_FUNCTION_07 = 0x07,
-    GPIO_ALTERNATE_FUNCTION_08 = 0x08,
-    GPIO_ALTERNATE_FUNCTION_09 = 0x09,
-    GPIO_ALTERNATE_FUNCTION_10 = 0x0A,
-    GPIO_ALTERNATE_FUNCTION_11 = 0x0B,
-    GPIO_ALTERNATE_FUNCTION_12 = 0x0C,
-    GPIO_ALTERNATE_FUNCTION_13 = 0x0D,
-    GPIO_ALTERNATE_FUNCTION_14 = 0x0E,
-    GPIO_ALTERNATE_FUNCTION_15 = 0x0F,
-} gpio_aternate_function_t;
+    GPIO_AF_00 = 0x0,
+    GPIO_AF_01 = 0x1,
+    GPIO_AF_02 = 0x2,
+    GPIO_AF_03 = 0x3,
+    GPIO_AF_04 = 0x4,
+    GPIO_AF_05 = 0x5,
+    GPIO_AF_06 = 0x6,
+    GPIO_AF_07 = 0x7,
+    GPIO_AF_08 = 0x8,
+    GPIO_AF_09 = 0x9,
+    GPIO_AF_10 = 0xA,
+    GPIO_AF_11 = 0xB,
+    GPIO_AF_12 = 0xC,
+    GPIO_AF_13 = 0xD,
+    GPIO_AF_14 = 0xE,
+    GPIO_AF_15 = 0xF,
+} gpio_af_t;
 
 typedef struct
 {
     gpio_pin_no_t pin_no;
     gpio_mode_t mode;
-    gpio_output_speed_t output_speed;
+    gpio_output_speed_t speed;
     gpio_output_pupd_mode_t pupd_mode;
-    gpio_aternate_function_t alternative_function;
+    gpio_af_t af;
 } gpio_pin_config_t;
 
 /* Public function prototypes ------------------------------------------------*/
