@@ -114,7 +114,7 @@ int __gpio_read_pin(gpio_reg_t *reg, gpio_pin_no_t pin, gpio_pin_state_t *val)
         return -EINVAL;
     }
 
-    val = get_bit(reg->IDR, pin) ? GPIO_PIN_STATE_SET : GPIO_PIN_STATE_RESET;
+    *val = get_bit(reg->IDR, pin) ? GPIO_PIN_STATE_SET : GPIO_PIN_STATE_RESET;
 
     return res;
 }

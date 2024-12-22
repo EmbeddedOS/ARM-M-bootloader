@@ -14,7 +14,9 @@ NC=\033[0m
 
 # Input objects.
 DRIVER_INC=./drivers/inc
-DRIVER_OBJS+= $(BUILD_DIR)drivers/stm32f407xx_gpio.o
+DRIVER_OBJS+= $(BUILD_DIR)drivers/stm32f407xx_gpio.o \
+	$(BUILD_DIR)drivers/stm32f407xx_nvic.o \
+	$(BUILD_DIR)drivers/stm32f407xx_usart.o
 
 OBJS+= 	$(BUILD_DIR)main.o \
 		$(BUILD_DIR)boot/startup_stm32f407xx.o \
