@@ -150,6 +150,12 @@ typedef enum
     GPIO_AF_15 = 0xF,
 } gpio_af_t;
 
+typedef enum
+{
+    GPIO_PIN_STATE_RESET = 0,
+    GPIO_PIN_STATE_SET = 1
+} gpio_pin_state_t;
+
 typedef struct
 {
     gpio_pin_no_t pin_no;
@@ -158,12 +164,6 @@ typedef struct
     gpio_output_pupd_mode_t pupd_mode;
     gpio_af_t af;
 } gpio_pin_config_t;
-
-typedef enum
-{
-    GPIO_PIN_STATE_RESET = 0,
-    GPIO_PIN_STATE_SET = 1
-} gpio_pin_state_t;
 
 /* Public function prototypes ------------------------------------------------*/
 #define gpio_init(port, config) ({           \
