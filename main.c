@@ -1,4 +1,5 @@
 #include <stm32f407xx_gpio.h>
+#include <stm32f407xx_led.h>
 
 volatile unsigned int * const UART0DR = (unsigned int *)0x40007804;
 
@@ -11,7 +12,8 @@ void print_uart0(const char *s) {
 
 int main()
 {
-    enable_GPIOA_clk();
-    gpio_read_pin(GPIOA, GPIO_PIN_NO_00, NULL);
+    led_init(LED_GREEN);
+    led_on(LED_GREEN);
+
     print_uart0("Hi there uart1\n");
 }
