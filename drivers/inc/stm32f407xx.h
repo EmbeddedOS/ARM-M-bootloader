@@ -213,7 +213,7 @@ PERIPHERAL_TABLE
 #define clear_bit(reg, pos) ({ reg &= ~(1 << pos); })
 
 #define modify_bit(reg, pos, val) ({                        \
-    reg = (val) ? (reg | (1 << pos) : (reg & !(1 << pos))); \
+    reg = (val) ? (reg | (1 << pos)) : (reg & ~(1 << pos)); \
 })
 
 #define modify_reg(reg, pos, len, val)    \
