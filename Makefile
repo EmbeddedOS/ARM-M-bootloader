@@ -18,6 +18,7 @@ DRIVER_INC=./drivers/inc
 DRIVER_OBJS+= $(BUILD_DIR)drivers/stm32f407xx_gpio.o \
 	$(BUILD_DIR)drivers/stm32f407xx_nvic.o \
 	$(BUILD_DIR)drivers/stm32f407xx_usart.o \
+	$(BUILD_DIR)drivers/stm32f407xx_rcc.o \
 	$(BUILD_DIR)bsp/stm32f407xx_led.o
 
 OBJS+= 	$(BUILD_DIR)main.o \
