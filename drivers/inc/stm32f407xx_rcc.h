@@ -8,6 +8,6 @@
 
 /* Public function prototypes ------------------------------------------------*/
 
-int rcc_get_clk1(uint32_t *clk);
+int rcc_get_pclk1(uint32_t *clk);
 
-int rcc_get_clk2(uint32_t *clk);
+int rcc_get_pclk2(uint32_t *clk);

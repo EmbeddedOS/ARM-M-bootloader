@@ -9,11 +9,12 @@
 #include <stm32f407xx.h>
 
 /* Public defines ------------------------------------------------------------*/
-#define USART_BIT_POS_CR1_RE 2    /* Receiver enable. */
-#define USART_BIT_POS_CR1_TE 3    /* Transmitter enable. */
-#define USART_BIT_POS_CR1_PCE 10  /* Parity control enable. */
-#define USART_BIT_POS_CR1_PS 9    /*  Parity selection. */
-#define USART_BIT_POS_CR2_STOP 12 /*  STOP bits. */
+#define USART_BIT_POS_CR1_RE 2     /* Receiver enable. */
+#define USART_BIT_POS_CR1_TE 3     /* Transmitter enable. */
+#define USART_BIT_POS_CR1_PCE 10   /* Parity control enable. */
+#define USART_BIT_POS_CR1_PS 9     /* Parity selection. */
+#define USART_BIT_POS_CR2_STOP 12  /* STOP bits. */
+#define USART_BIT_POS_CR1_OVER8 15 /* Oversampling mode. */
 
 /* Public types --------------------------------------------------------------*/
 typedef enum

@@ -1,6 +1,10 @@
 #include <stm32f407xx.h>
 #include <stm32f407xx_rcc.h>
 
+/* Private variables ---------------------------------------------------------*/
+static uint16_t AHB_pre_scaler[] = {2, 4, 8, 16, 64, 128, 256, 512};
+static uint8_t APB1_pre_scaler[] = {2, 4, 8, 16};
+
 /* Private functions ---------------------------------------------------------*/
 uint8_t get_clk_src()
 {
@@ -11,29 +15,76 @@ int get_sys_clk(uint32_t *clk)
 {
     uint8_t clk_src = get_clk_src();
 
-    if (clk_src == RCC_SYSCLK_SOURCE_HSI)
+    switch (clk_src)
     {
-        return 16000000U;
-    }
-    else if (clk_src == RCC_SYSCLK_SOURCE_HSE)
+    case RCC_SYSCLK_SOURCE_HSI:
     {
-        return 8000000;
+        *clk = 16000000U;
+        return 0;
     }
-    else if (clk_src == RCC_SYSCLK_SOURCE_PLL)
-    { // TODO: implement getting clock with PLL source.
-        return -ENOPROTOOPT;
+    break;
+    case RCC_SYSCLK_SOURCE_HSE:
+    {
+        *clk = 8000000U;
+        return 0;
+    }
+    break;
+
+    case RCC_SYSCLK_SOURCE_PLL:
+    default:
+    }
+    return -ENOPROTOOPT;
+}
+
+uint8_t get_ahb_prescale()
+{
+    uint8_t res = ((get_RCC_reg()->CFGR >> 4) & 0b1111);
+    if (res < 0b1000)
+    { // 0xxx: system clock not divided.
+        res = 1;
     }
     else
     {
-        return -ENXIO;
+        res = AHB_pre_scaler[res - 0b1000];
     }
+
+    return res;
+}
+
+uint8_t get_apb1_prescale()
+{
+    uint8_t res = ((get_RCC_reg()->CFGR >> 10) & 0b111);
+    if (res < 0b100)
+    { // 0xx: AHB clock not divided
+        res = 1;
+    }
+    else
+    {
+        res = APB1_pre_scaler[res - 0b100];
+    }
+
+    return res;
+}
+
+uint8_t get_apb2_prescale()
+{
+    uint8_t res = ((get_RCC_reg()->CFGR >> 13) & 0b111);
+    if (res < 0b100)
+    { // 0xx: AHB clock not divided
+        res = 1;
+    }
+    else
+    {
+        res = APB1_pre_scaler[res - 0b100];
+    }
+
+    return res;
 }
 
 /* Public functions ----------------------------------------------------------*/
-int rcc_get_clk1(uint32_t *clk)
+int rcc_get_pclk1(uint32_t *clk)
 {
     int res = 0;
-    uint32_t pclk1 = 0;
     uint32_t sysclk = 0;
 
     if (clk == NULL)
@@ -48,9 +99,25 @@ int rcc_get_clk1(uint32_t *clk)
         return res;
     }
 
-    
+    return (sysclk / get_ahb_prescale()) / get_apb1_prescale();
 }
 
-int rcc_get_clk2(uint32_t *clk)
+int rcc_get_pclk2(uint32_t *clk)
 {
+    int res = 0;
+    uint32_t sysclk = 0;
+
+    if (clk == NULL)
+    {
+        return -EINVAL;
+    }
+
+    /* 1. Check clock source. */
+    res = get_sys_clk(&sysclk);
+    if (res < 0)
+    {
+        return res;
+    }
+
+    return (sysclk / get_ahb_prescale()) / get_apb2_prescale();
 }
