@@ -15,6 +15,9 @@
 #define USART_BIT_POS_CR1_PS 9     /* Parity selection. */
 #define USART_BIT_POS_CR2_STOP 12  /* STOP bits. */
 #define USART_BIT_POS_CR1_OVER8 15 /* Oversampling mode. */
+#define USART_BIT_POS_SR_TXE 7     /* Transmit data register empty. */
+#define USART_BIT_POS_SR_TC 6      /* Transmission complete. */
+#define USART_BIT_POS_SR_RXNE 5    /*  Read data register not empty. */
 
 /* Public types --------------------------------------------------------------*/
 typedef enum

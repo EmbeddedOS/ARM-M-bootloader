@@ -4,7 +4,23 @@
 /* Private function prototypes -----------------------------------------------*/
 int usart_set_baudrate(usart_reg_t *reg, uint32_t baudrate);
 
+static inline bool usart_check_status_flag(usart_reg_t *reg, uint8_t flag);
+
+#define WAIT_TRANSMITTER_EMPTY(reg) \
+    ({while(!usart_check_status_flag(reg, USART_BIT_POS_SR_TXE)); })
+
+#define WAIT_TRANSMITTER_COMPLETE(reg) \
+    ({while(!usart_check_status_flag(reg, USART_BIT_POS_SR_TC)); })
+
+#define WAIT_RECEIVER_NOT_EMPTY(reg) \
+    ({while(!usart_check_status_flag(reg, USART_BIT_POS_SR_RXNE)); })
+
 /* Private functions ---------------------------------------------------------*/
+static inline bool usart_check_status_flag(usart_reg_t *reg, uint8_t flag)
+{
+    return reg->SR & flag;
+}
+
 int usart_set_baudrate(usart_reg_t *reg, uint32_t baudrate)
 {
     int res = 0;
@@ -86,11 +102,69 @@ int usart_init(uart_handle_t *self)
 
 int usart_send(uart_handle_t *self, const uint8_t *buffer, uint32_t len)
 {
+    for (int i = 0; i < len; i++)
+    {
+        WAIT_TRANSMITTER_EMPTY(self->reg);
+        if (self->config.word_length == USART_WORD_LENGTH_8BIT)
+        { // Wordlength 8 bit.
+            self->reg->DR = (*buffer && (uint8_t)0xFF);
+            buffer++;
+        }
+        else
+        { // Wordlength 9 bit.
+            self->reg->DR = (*((uint16_t *)buffer) && (uint16_t)0x1FF);
+            if (self->config.parity == USART_PARITY_MODE_DISABLE)
+            {
+                buffer++;
+                buffer++;
+            }
+            else
+            { // Sent 8 bytes of data, the 8th bit will be parity bit, will be
+              // updated by hardware.
+                buffer++;
+            }
+        }
+    }
+
+    WAIT_TRANSMITTER_COMPLETE(self->reg);
+
     return 0;
 }
 
 int usart_recv(uart_handle_t *self, uint8_t *buffer, uint32_t max_len)
 {
+    for (int i = 0; i < max_len; i++)
+    {
+        WAIT_RECEIVER_NOT_EMPTY(self->reg);
+        if (self->config.word_length == USART_WORD_LENGTH_8BIT)
+        { // Wordlength 8 bit.
+            if (self->config.parity == USART_PARITY_MODE_DISABLE)
+            { // Read 8 bits.
+                *buffer = (uint8_t)(self->reg->DR & (uint8_t)0xFF);
+            }
+            else
+            { // Read 7 bits.
+                *buffer = (uint8_t)(self->reg->DR & (uint8_t)0x7F);
+            }
+
+            buffer++;
+        }
+        else
+        { // Wordlength 9 bit.
+            if (self->config.parity == USART_PARITY_MODE_DISABLE)
+            { // Read 9 bits.
+                *((uint16_t *)buffer) = (self->reg->DR & (uint16_t)0x01FF);
+                buffer++;
+                buffer++;
+            }
+            else
+            { // Read 8 bits.
+                *buffer = (uint8_t)(self->reg->DR & (uint8_t)0xFF);
+                buffer++;
+            }
+        }
+    }
+
     return 0;
 }
 
