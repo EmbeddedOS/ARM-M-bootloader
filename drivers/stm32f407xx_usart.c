@@ -104,15 +104,15 @@ int usart_send(uart_handle_t *self, const uint8_t *buffer, uint32_t len)
 {
     for (int i = 0; i < len; i++)
     {
-        WAIT_TRANSMITTER_EMPTY(self->reg);
+        //WAIT_TRANSMITTER_EMPTY(self->reg);
         if (self->config.word_length == USART_WORD_LENGTH_8BIT)
         { // Wordlength 8 bit.
-            self->reg->DR = (*buffer && (uint8_t)0xFF);
+            self->reg->DR = (*buffer & (uint8_t)0xFF);
             buffer++;
         }
         else
         { // Wordlength 9 bit.
-            self->reg->DR = (*((uint16_t *)buffer) && (uint16_t)0x1FF);
+            self->reg->DR = (*((uint16_t *)buffer) & (uint16_t)0x1FF);
             if (self->config.parity == USART_PARITY_MODE_DISABLE)
             {
                 buffer++;
