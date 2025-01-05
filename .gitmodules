@@ -1,0 +1,3 @@
+[submodule "qemu_stm32f407_soc"]
+	path = qemu_stm32f407_soc
+	url = https://github.com/EmbeddedOS/qemu_stm32f407_soc
